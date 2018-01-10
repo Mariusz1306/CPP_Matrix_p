@@ -3,57 +3,55 @@
 #include "Matrix.h"
 
 void CMatrix::check(unsigned int i){
-if(block->rows<i)
-throw IndexOutOfRange();
+	if(block->rows<i)
+		throw IndexOutOfRange();
 }
 
 CMatrix::CMatrix(std::fstream& fs){
-block = new rcmatrix(fs);
+	block = new rcmatrix(fs);
 }
 
 CMatrix::CMatrix(const CMatrix& cm){
-cm.block->n++;
-block = cm.block;
+	cm.block->n++;
+	block = cm.block;
 }
 
 CMatrix::~CMatrix(){
-  if(--block->n==0)
-    delete block;
+	if(--block->n==0)
+		delete block;
 }
 
 CMatrix::CMatrix(){
-        block = new rcmatrix();
+	block = new rcmatrix();
 }
 
 CMatrix::CMatrix(unsigned int nrows, unsigned int ncols, double var){
-        block = new rcmatrix(nrows,ncols,var);
+    block = new rcmatrix(nrows,ncols,var);
 }
 
 CMatrix::CMatrix(unsigned int nrows, unsigned int ncols, double var1, double var2){
-                block = new rcmatrix(nrows,ncols,var1,var2);
+	block = new rcmatrix(nrows,ncols,var1,var2);
 }
 
 CMatrix& CMatrix::operator = (const CMatrix& asOp){
+	asOp.block->n++;
+	if(--block->n == 0)
+		delete block;
 
-asOp.block->n++;
-if(--block->n == 0)
-delete block;
-
-block=asOp.block;
-return *this;
+	block=asOp.block;
+	return *this;
 }
 
 CMatrix & CMatrix::operator=(double** co){
-  if(block->n==1){
-    block->assign(co);
-  }
-  else
-  {
-    rcmatrix* t= new rcmatrix(1,1,co);
-    this->block->n--;
-    this->block = t;
-  }
-  return *this;
+	if(block->n==1){
+	block->assign(co);
+	}
+	else{
+		rcmatrix* t= new rcmatrix(1,1,co);
+	this->block->n--;
+	this->block = t;
+	}
+	return *this;
 }
 
 std::ostream & operator << (std::ostream & s, const CMatrix & matrix){
@@ -73,23 +71,19 @@ std::ostream & operator << (std::ostream & s, const CMatrix & matrix){
 }
 
 inline CMatrix operator * (const CMatrix& m1, const CMatrix& m2){
+	if(m1.block->cols != m2.block->rows)
+		throw WrongDim();
 
-        if(m1.block->cols != m2.block->rows)throw WrongDim();
+	CMatrix newMatrix(m1.block->rows, m2.block->cols,0.0);
 
-        CMatrix newMatrix(m1.block->rows, m2.block->cols,0.0);
-
-        for(unsigned int i=0;i<newMatrix.block->rows;i++)
-        for(unsigned int j=0;j<newMatrix.block->cols;j++)
-        {
-                double var=0.0;
-
-                for(unsigned int lol=0;lol<m1.block->cols;lol++)
-                var += m1.block->data[i][lol]*m2.block->data[lol][j];
-
-                newMatrix.block->data[i][j] = var;
-        }
-
-        return newMatrix;
+	for(unsigned int i=0;i<newMatrix.block->rows;i++)
+		for(unsigned int j=0;j<newMatrix.block->cols;j++){
+			double var=0.0;
+			for(unsigned int lol=0;lol<m1.block->cols;lol++)
+				var += m1.block->data[i][lol]*m2.block->data[lol][j];
+			newMatrix.block->data[i][j] = var;
+		}
+	return newMatrix;
 }
 
 double* CMatrix::read(unsigned int i) const{

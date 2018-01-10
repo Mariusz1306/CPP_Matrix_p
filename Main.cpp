@@ -12,5 +12,7 @@ int main(){
 	int x1;
 	x1 = c[2][1];
 	std::cout<<x1<<std::endl;
+	c[2][1] = 8;
+	std::cout<<c[2][1]<<std::endl;
     return 0;
 }
