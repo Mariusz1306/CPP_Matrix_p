@@ -1,6 +1,6 @@
 #include <math.h>
 #include <fstream>
-#include "rcmatrix.h"
+#include "Matrix.h"
 
 int main(){
     CMatrix a;
@@ -9,5 +9,8 @@ int main(){
     std::cout<<a<<std::endl;
     std::cout<<b<<std::endl;
     std::cout<<c<<std::endl;
+	int x1;
+	x1 = c[2][1];
+	std::cout<<x1<<std::endl;
     return 0;
 }
