@@ -181,22 +181,25 @@ bool CMatrix::operator == (const CMatrix& m2){
 	return true;
 }
 
-double* CMatrix::read(unsigned int i) const{
+double CMatrix::read(unsigned int i, unsigned int j) const{
     std::cout << "read" << std::endl;
+    /*
     std::cout << "i: " << i << std::endl;
+    std::cout << "j: " << j << std::endl;
+    */
 	try{
-        return block->data[i];
+        return block->data[i][j];
 	}
 	catch(...){
         throw IndexOutOfRange();
 	}
 }
 
-void CMatrix::write(unsigned int i, double* c){
+void CMatrix::write(unsigned int i, unsigned j, double d){
     std::cout << "write" << std::endl;
 	block = block->detach();
 	try{
-        block->data[i] = c;
+        block->data[i][j] = d;
 	}
 	catch(...){
         throw IndexOutOfRange();
@@ -205,14 +208,15 @@ void CMatrix::write(unsigned int i, double* c){
 
 
 
-CMatrix::Cref CMatrix::operator[](unsigned int i){
-  std::cout << "Cref rcstring::operator[](unsigned int i) CALLED"<<std::endl;
+CMatrix::Cref CMatrix::operator()(unsigned int i, unsigned int j){
+  //std::cout << "Cref rcmatrix::operator()(unsigned int i, unsigned int j) CALLED"<<std::endl;
   check(i);
-  return Cref(*this,i);
+  check(j);
+  return Cref(*this,i,j);
 }
 
 std::ostream& operator<<(std::ostream& o, const CMatrix::Cref& s1){
-std::cout << "operator<<(std::ostream& o, const CMatrix::Cref& s1)"<<std::endl;
-	o << s1.s.block->data[s1.i][s1.i];
+//std::cout << "operator<<(std::ostream& o, const CMatrix::Cref& s1)"<<std::endl;
+	o << s1.s.block->data[s1.i][s1.j];
 	return o;
 }

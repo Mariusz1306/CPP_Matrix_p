@@ -57,8 +57,10 @@ int main(){
 
     CMatrix mariusz(9,9,7);
     std::cout << "mariusz:" << std::endl<< mariusz << std::endl;
-    std::cout << "mariusz[5][5]:" << std::endl<< mariusz[5][5] << std::endl;
-    mariusz[5][5] = 4;
+    double d_mariusz = mariusz(2, 3);
+    std::cout << "mariusz(2, 3): " << d_mariusz << std::endl;
+    mariusz(2, 3) = 4;
+    std::cout << "mariusz(2, 3) = 4" << std::endl;
     std::cout << "mariusz:" << std::endl<< mariusz << std::endl;
 
     return 0;

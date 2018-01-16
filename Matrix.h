@@ -17,9 +17,9 @@ class CMatrix{
 		CMatrix(const CMatrix& cm);
 		CMatrix(std::fstream& fs);
 		CMatrix(unsigned int, unsigned int, double);
-		void write(unsigned int i, double* c);
-		double* read(unsigned int i) const;
-		double* operator[](unsigned int i )const;
+		void write(unsigned int i, unsigned int j, double d);
+		double read(unsigned int i, unsigned int j) const;
+		double operator()(unsigned int i, unsigned int j) const;
 		CMatrix& operator=(const CMatrix& asOp);
 		CMatrix& operator=(double** co);
 		~CMatrix();
@@ -34,7 +34,7 @@ class CMatrix{
         bool operator== (const CMatrix&);
 
 		void check(unsigned int i);
-		Cref operator[](unsigned int i);
+		Cref operator()(unsigned int i, unsigned int j);
 
 };
 
@@ -144,25 +144,25 @@ class CMatrix::Cref{
 	unsigned int i;
 	unsigned int j;
 
-	Cref (CMatrix& ss, unsigned int ii): s(ss), i(ii){
-		std::cout << "cref contructor CALLED"<<std::endl;
+	Cref (CMatrix& ss, unsigned int ii, unsigned jj): s(ss), i(ii), j(jj){
+		//std::cout << "cref contructor CALLED"<<std::endl;
 	};
 
 	public:
-		operator double*() const{
-			std::cout << "operator double* CALLED"<<std::endl;
-			return s.read(i);
+		operator double() const{
+			//std::cout << "operator double CALLED"<<std::endl;
+			return s.read(i, j);
 		};
 
-		CMatrix::Cref& operator = (double* c){
-			std::cout << "operator = (double* c) CALLED" << std::endl;
-			s.write(i,c);
+		CMatrix::Cref& operator = (double d){
+			//std::cout << "operator = (double c) CALLED" << std::endl;
+			s.write(i, j, d);
 			return *this;
 		};
 
 		CMatrix::Cref& operator = (const Cref& ref){
-			std::cout << "operator = (const Cref& ref) CALLED" << std::endl;
-			return operator = ((double*)ref);
+			//std::cout << "operator = (const Cref& ref) CALLED" << std::endl;
+			return operator = (ref);
 		};
 
 		friend std::ostream& operator<<(std::ostream&, const CMatrix::Cref&);
