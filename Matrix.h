@@ -14,17 +14,11 @@ class CMatrix{
 		class Cref;
 
 		CMatrix();
-		CMatrix(const CMatrix& cm);
-		CMatrix(std::fstream& fs);
+		CMatrix(const CMatrix&);
+		CMatrix(std::fstream&);
 		CMatrix(unsigned int, unsigned int, double);
-		void write(unsigned int i, unsigned int j, double d);
-		double read(unsigned int i, unsigned int j) const;
-		double operator()(unsigned int i, unsigned int j) const;
-		CMatrix& operator=(const CMatrix& asOp);
-		CMatrix& operator=(double** co);
 		~CMatrix();
-		friend std::ostream & operator << (std::ostream & s, const CMatrix & matrix);
-		friend std::ostream & operator << (std::ostream & s, const CMatrix::Cref& s1);
+		CMatrix& operator=(const CMatrix&);
 		friend CMatrix operator* (const CMatrix&, const CMatrix&);
 		friend CMatrix operator+ (const CMatrix&, const CMatrix&);
 		friend CMatrix operator- (const CMatrix&, const CMatrix&);
@@ -32,10 +26,14 @@ class CMatrix{
 		CMatrix& operator+= (const CMatrix&);
 		CMatrix& operator-= (const CMatrix&);
         bool operator== (const CMatrix&);
-
-		void check(unsigned int i);
-		Cref operator()(unsigned int i, unsigned int j);
-
+		friend std::ostream & operator << (std::ostream&, const CMatrix&);
+		friend std::ostream & operator << (std::ostream&, const CMatrix::Cref&);
+        void write(unsigned int, unsigned int, double);
+		double read(unsigned int i, unsigned int) const;
+		double operator()(unsigned int i, unsigned int) const;
+		void check_row(unsigned int);
+		void check_col(unsigned int);
+		Cref operator()(unsigned int, unsigned int);
 };
 
 struct CMatrix::rcmatrix{
@@ -97,7 +95,6 @@ struct CMatrix::rcmatrix{
 		}
 
 	rcmatrix(const rcmatrix& old_matrix){
-	    //std::cout << "TEST" << std::endl;
 		try{
 			this->data = new double*[old_matrix.rows];
 			for(unsigned int i=0;i<old_matrix.rows;i++)
@@ -115,7 +112,6 @@ struct CMatrix::rcmatrix{
 		this->rows=old_matrix.rows;
 		this->cols=old_matrix.cols;
 		this->ref_count=1;
-
 	}
 
     ~rcmatrix(){
@@ -125,7 +121,6 @@ struct CMatrix::rcmatrix{
     }
 
     rcmatrix* detach(){
-        //std::cout<<"Detach"<<std::endl;
 		if(ref_count==1)
 			return this;
         rcmatrix* t=new rcmatrix(*this);
@@ -133,37 +128,30 @@ struct CMatrix::rcmatrix{
         return t;
     }
 
-	void assign(double** p){
-		data = p;
-	}
 };
 
 class CMatrix::Cref{
 	friend class CMatrix;
-	CMatrix& s;
-	unsigned int i;
-	unsigned int j;
+	CMatrix& Cref_matrix;
+	unsigned int Cref_rows;
+	unsigned int Cref_cols;
 
-	Cref (CMatrix& ss, unsigned int ii, unsigned jj): s(ss), i(ii), j(jj){
-		//std::cout << "cref contructor CALLED"<<std::endl;
+	Cref (CMatrix& mat, unsigned int i, unsigned j): Cref_matrix(mat), Cref_rows(i), Cref_cols(j){
 	};
 
-	public:
-		operator double() const{
-			//std::cout << "operator double CALLED"<<std::endl;
-			return s.read(i, j);
-		};
+    public:
+        operator double() const{
+            return Cref_matrix.read(Cref_rows, Cref_cols);
+        };
 
-		CMatrix::Cref& operator = (double d){
-			//std::cout << "operator = (double c) CALLED" << std::endl;
-			s.write(i, j, d);
-			return *this;
-		};
+        CMatrix::Cref& operator = (double value){
+            Cref_matrix.write(Cref_rows, Cref_cols, value);
+            return *this;
+        };
 
-		CMatrix::Cref& operator = (const Cref& ref){
-			//std::cout << "operator = (const Cref& ref) CALLED" << std::endl;
-			return operator = (ref);
-		};
+        CMatrix::Cref& operator = (const Cref& ref){
+            return operator = (ref);
+        };
 
-		friend std::ostream& operator<<(std::ostream&, const CMatrix::Cref&);
+        friend std::ostream& operator<<(std::ostream&, const CMatrix::Cref&);
 };
